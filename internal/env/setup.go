@@ -28,12 +28,8 @@ func Setup(ctx context.Context) (*Env, error) {
 		return nil, fmt.Errorf("env processing: %w", err)
 	}
 
-	linksDBCLient, err := mongo.Connect(
+	linksDB, err := mongo.Connect(
 		ctx, &options.ClientOptions{
-			Auth: &options.Credential{
-				Username: cfg.LinksDB.User,
-				Password: cfg.LinksDB.Password,
-			},
 			ConnectTimeout: &cfg.LinksDB.ConnectTimeout,
 			Hosts:          []string{fmt.Sprintf("%s:%d", cfg.LinksDB.Host, cfg.LinksDB.Port)},
 			MaxPoolSize:    &cfg.LinksDB.MaxPoolSize,
@@ -49,8 +45,8 @@ func Setup(ctx context.Context) (*Env, error) {
 		return nil, err
 	}
 
-	usersRepository := users.New(usersClient, 5*time.Second)   // вынести в конфиг duration
-	linksRepository := links.New(linksDBCLient, 5*time.Second) // вынести в конфиг duratino
+	usersRepository := users.New(usersClient, 5*time.Second)                        // вынести в конфиг duration
+	linksRepository := links.New(linksDB.Database(cfg.LinksDB.Name), 5*time.Second) // вынести в конфиг duratino
 	env.LinksRepository = linksRepository
 	env.UsersRepository = usersRepository
 

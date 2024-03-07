@@ -9,12 +9,14 @@ import (
 	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/database"
 )
 
-func New(db *mongo.Client, timeout time.Duration) *Repository {
+const collection = "links"
+
+func New(db *mongo.Database, timeout time.Duration) *Repository {
 	return &Repository{db: db, timeout: timeout}
 }
 
 type Repository struct {
-	db      *mongo.Client
+	db      *mongo.Database
 	timeout time.Duration
 }
 
