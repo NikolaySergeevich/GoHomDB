@@ -34,13 +34,14 @@ func runMain(ctx context.Context) error {
 			Title:  "ya main page",
 			Tags:   []string{"search", "yandex"},
 			Images: []string{},
+			UserID: "uuid", // created user id
 		},
 	)
 	if err != nil {
 		return err
 	}
 
-	found, err := e.LinksRepository.FindByURL(ctx, "https://ya.ru")
+	found, err := e.LinksRepository.FindByUserAndURL(ctx, "https://ya.ru", "uuid")
 	if err != nil {
 		return err
 	}

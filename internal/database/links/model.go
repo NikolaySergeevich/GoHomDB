@@ -10,9 +10,11 @@ type CreateReq struct {
 	Title  string
 	Tags   []string
 	Images []string
+	UserID string
 }
 
 type Criteria struct {
+	UserID *string
 	Tags   []string
 	Limit  *int64
 	Offset *int64

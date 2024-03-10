@@ -26,7 +26,7 @@ func (r *Repository) Create(ctx context.Context, req CreateReq) (database.Link, 
 	return l, nil
 }
 
-func (r *Repository) FindByURL(ctx context.Context, u string) (database.Link, error) {
+func (r *Repository) FindByUserAndURL(ctx context.Context, link, userID string) (database.Link, error) {
 	var l database.Link
 	// implement me
 	return l, nil
