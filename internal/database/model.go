@@ -13,6 +13,7 @@ type Link struct {
 	URL       string             `bson:"url"`
 	Images    []string           `bson:"images"`
 	Tags      []string           `bson:"tags"`
+	UserID    string             `bson:"userID"`
 	CreatedAt time.Time          `bson:"created_at"`
 	UpdatedAt time.Time          `bson:"updated_at"`
 }
