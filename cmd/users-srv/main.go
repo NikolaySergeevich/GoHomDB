@@ -27,6 +27,7 @@ func runMain(ctx context.Context) error {
 		return fmt.Errorf("setup.Setup: %w", err)
 	}
 	_ = e
+	
 	create, err := e.UsersRepository.Create(
 		ctx, users.CreateUserReq{
 			ID:       uuid.New(),
@@ -47,6 +48,6 @@ func runMain(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(create, found, foundBy)
+	fmt.Println(create.UserString(), found.UserString(), foundBy.UserString())
 	return nil
 }

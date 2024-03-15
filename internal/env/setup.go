@@ -3,6 +3,7 @@ package env
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -27,7 +28,9 @@ func Setup(ctx context.Context) (*Env, error) {
 	if err := envconfig.Process(ctx, &cfg); err != nil { //nolint:typecheck
 		return nil, fmt.Errorf("env processing: %w", err)
 	}
-
+	/*
+	Этот блок кода создаёт подключение к mongo
+	*/
 	linksDB, err := mongo.Connect(
 		ctx, &options.ClientOptions{
 			ConnectTimeout: &cfg.LinksDB.ConnectTimeout,
@@ -39,11 +42,16 @@ func Setup(ctx context.Context) (*Env, error) {
 	if err != nil {
 		return nil, fmt.Errorf("mongo.Connect: %w", err)
 	}
-
+	log.Println(cfg.LinksDB.ConnectionString())
+	/*
+	Этот код ниже создаёт подключение к PostgreSQL
+	*/
 	usersClient, err := pgx.Connect(ctx, cfg.UsersDB.ConnectionURL())
 	if err != nil {
+		fmt.Println("Тут ошибка")
 		return nil, err
 	}
+	log.Println("connect - " + cfg.UsersDB.ConnectionURL())
 
 	usersRepository := users.New(usersClient, 5*time.Second)                        // вынести в конфиг duration
 	linksRepository := links.New(linksDB.Database(cfg.LinksDB.Name), 5*time.Second) // вынести в конфиг duratino
