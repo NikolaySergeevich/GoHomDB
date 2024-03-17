@@ -10,6 +10,7 @@ import (
 	"github.com/sethvargo/go-envconfig"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/database/links"
 	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/database/users"
@@ -39,6 +40,12 @@ func Setup(ctx context.Context) (*Env, error) {
 			MinPoolSize:    &cfg.LinksDB.MinPoolSize,
 		},
 	)
+	if err := linksDB.Ping(ctx, readpref.Primary()); err != nil {
+		log.Fatal(err)
+	}
+
+	// mongoDb := linksDB.Database("Lin")
+
 	if err != nil {
 		return nil, fmt.Errorf("mongo.Connect: %w", err)
 	}

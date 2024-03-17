@@ -16,8 +16,8 @@ type LinksDBConfig struct {
 	MongoConfig
 }
 
+//для запуска контейнена с mongo: docker run --name hmoDBMongo -d -p 27018:27017 mongo
 type MongoConfig struct {
-	//для запуска контейнена с mongo: docker run --name hmoDBMongo -d -p 27018:27017 mongo
 	Name           string        `env:"NAME,default=links"`
 	Host           string        `env:"HOST,default=127.0.0.1"`
 	Port           int           `env:"PORT,default=27018"`

@@ -33,11 +33,11 @@ func (r *Repository) Create(ctx context.Context, req CreateUserReq) (database.Us
 
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
-
+	
 	r.userDB.QueryRow(context.Background(), "INSERT INTO users (id, username, password) VALUES($1, $2, $3) returning username, password, created_at, updated_at",
-		req.ID, req.Username, req.Password).Scan(&u.Username, &u.Password, &u.CreatedAt, &u.UpdatedAt)
+	req.ID, req.Username, req.Password).Scan(&u.Username, &u.Password, &u.CreatedAt, &u.UpdatedAt)
+	
 	u.ID = req.ID
-
 	return u, nil
 }
 

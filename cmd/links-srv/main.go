@@ -34,26 +34,31 @@ func runMain(ctx context.Context) error {
 			Title:  "ya main page",
 			Tags:   []string{"search", "yandex"},
 			Images: []string{},
-			UserID: "uuid", // created user id
+			UserID: "9cde716c-dff7-4ad2-b004-c2f7ea65179d", // created user id
 		},
 	)
 	if err != nil {
 		return err
 	}
 
-	found, err := e.LinksRepository.FindByUserAndURL(ctx, "https://ya.ru", "uuid")
+	found, err := e.LinksRepository.FindByUserAndURL(ctx, "https://ya.ru", "9cde716c-dff7-4ad2-b004-c2f7ea65179d")
 	if err != nil {
 		return err
+		// log.Println(err.Error())
 	}
 
 	foundBy, err := e.LinksRepository.FindByCriteria(
 		ctx, links.Criteria{
-			Tags: []string{"yandex"},
+			Tags: []string{"search", "yandex"},
+			UserID: &create.UserID,
 		},
 	)
 	if err != nil {
 		return err
 	}
-	fmt.Println(create, found, foundBy)
+	fmt.Println(create.LinkString(), found.LinkString())
+	for _, v := range foundBy {
+		fmt.Println(v.LinkString())
+	}
 	return nil
 }
