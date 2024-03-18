@@ -67,50 +67,70 @@ func (r *Repository) FindByCriteria(ctx context.Context, criteria Criteria) ([]d
 		if err != nil {
 			return res, fmt.Errorf("mongo Find: %w", err)
 		}
-		if err = req.All(context.TODO(), &res); err != nil {
-			return res, fmt.Errorf("mongo All Decod: %w", err)
-		}
+		result, err := helpByFindCrit(ctx, req, criteria.Limit)
+		return result, err
 	}
 
 	if len(criteria.Tags) > 1 && criteria.UserID == nil {
-		result, err := r.db.Collection(collection).Find(ctx, bson.M{"tags": criteria.Tags})
+		req, err := r.db.Collection(collection).Find(ctx, bson.M{"tags": criteria.Tags})
 		if err != nil {
 			return res, fmt.Errorf("mongo Find: %w", err)
 		}
-		if err = result.All(context.TODO(), &res); err != nil {
-			return res, fmt.Errorf("mongo All Decod: %w", err)
-		}
+		result, err := helpByFindCrit(ctx, req, criteria.Limit)
+		return result, err
 	}
 
 	if len(criteria.Tags) == 0 && criteria.UserID != nil {
-		result, err := r.db.Collection(collection).Find(ctx, bson.M{"userID": criteria.UserID})
+		req, err := r.db.Collection(collection).Find(ctx, bson.M{"userID": criteria.UserID})
 		if err != nil {
 			return res, fmt.Errorf("mongo Find: %w", err)
 		}
-		if err = result.All(context.TODO(), &res); err != nil {
-			return res, fmt.Errorf("mongo All Decod: %w", err)
-		}
+		result, err := helpByFindCrit(ctx, req, criteria.Limit)
+		return result, err
 	}
 
 	if len(criteria.Tags) == 1 && criteria.UserID != nil {
-		result, err := r.db.Collection(collection).Find(ctx, bson.M{"tags": criteria.Tags[0], "userID": criteria.UserID})
+		req, err := r.db.Collection(collection).Find(ctx, bson.M{"tags": criteria.Tags[0], "userID": criteria.UserID})
 		if err != nil {
 			return res, fmt.Errorf("mongo Find: %w", err)
 		}
-		if err = result.All(context.TODO(), &res); err != nil {
-			return res, fmt.Errorf("mongo All Decod: %w", err)
-		}
+		result, err := helpByFindCrit(ctx, req, criteria.Limit)
+		return result, err
 	}
 
 	if len(criteria.Tags) > 1 && criteria.UserID != nil {
-		result, err := r.db.Collection(collection).Find(ctx, bson.M{"tags": criteria.Tags, "userID": criteria.UserID})
+		req, err := r.db.Collection(collection).Find(ctx, bson.M{"tags": criteria.Tags, "userID": criteria.UserID})
 		if err != nil {
 			return res, fmt.Errorf("mongo Find: %w", err)
 		}
-		if err = result.All(context.TODO(), &res); err != nil {
-			return res, fmt.Errorf("mongo All Decod: %w", err)
-		}
+		result, err := helpByFindCrit(ctx, req, criteria.Limit)
+		return result, err
 	}
 
+	return res, nil
+}
+
+func helpByFindCrit(ctx context.Context, req *mongo.Cursor, lim int64) ([]database.Link, error) {
+	res := make([]database.Link, 0)
+	courL := database.Link{}
+
+	if lim == 0 {
+		if err := req.All(context.TODO(), &res); err != nil {
+			return res, fmt.Errorf("mongo All Decod: %w", err)
+		}
+	} else {
+		for req.Next(ctx) {
+			if lim > 0 {
+				if err := req.Decode(&courL); err != nil {
+					return res, fmt.Errorf("mongo Decode: %w", err)
+				}
+				res = append(res, courL)
+				lim -= 1
+			} else {
+				break
+			}
+
+		}
+	}
 	return res, nil
 }

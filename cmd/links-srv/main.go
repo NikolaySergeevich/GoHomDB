@@ -41,6 +41,20 @@ func runMain(ctx context.Context) error {
 		return err
 	}
 
+	create1, err := e.LinksRepository.Create(
+		ctx, links.CreateReq{
+			ID:     primitive.NewObjectID(),
+			URL:    "https://yataxi.ru",
+			Title:  "ya yayayay",
+			Tags:   []string{"taxi", "yandex"},
+			Images: []string{},
+			UserID: "9cde716c-dff7-4ad2-b004-c2f7ea65179d", // created user id
+		},
+	)
+	if err != nil {
+		return err
+	}
+
 	found, err := e.LinksRepository.FindByUserAndURL(ctx, "https://ya.ru", "9cde716c-dff7-4ad2-b004-c2f7ea65179d")
 	if err != nil {
 		return err
@@ -49,14 +63,16 @@ func runMain(ctx context.Context) error {
 
 	foundBy, err := e.LinksRepository.FindByCriteria(
 		ctx, links.Criteria{
-			Tags: []string{"search", "yandex"},
+			// Tags: []string{"search", "yandex"},
+			Tags: []string{"yandex"},
+			Limit: int64(1),
 			UserID: &create.UserID,
 		},
 	)
 	if err != nil {
 		return err
 	}
-	fmt.Println(create.LinkString(), found.LinkString())
+	fmt.Println(create.LinkString(), create1.LinkString(), found.LinkString())
 	for _, v := range foundBy {
 		fmt.Println(v.LinkString())
 	}
