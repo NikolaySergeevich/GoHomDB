@@ -16,10 +16,11 @@ type LinksDBConfig struct {
 	MongoConfig
 }
 
+//для запуска контейнена с mongo: docker run --name hmoDBMongo -d -p 27018:27017 mongo
 type MongoConfig struct {
 	Name           string        `env:"NAME,default=links"`
 	Host           string        `env:"HOST,default=127.0.0.1"`
-	Port           int           `env:"PORT,default=27017"`
+	Port           int           `env:"PORT,default=27018"`
 	User           string        `env:"USER,default=mongo"`
 	Password       string        `env:"USER,default=mongo"`
 	MinPoolSize    uint64        `env:"MIN_POOL_SIZE,default=5"`
@@ -28,7 +29,7 @@ type MongoConfig struct {
 }
 
 func (m MongoConfig) ConnectionString() string {
-	return fmt.Sprintf("mongodb://%s:%d", m.Host, m.Port)
+	return fmt.Sprintf("connect - mongodb://%s:%d", m.Host, m.Port)
 }
 
 type UsersDBConfig struct {
@@ -36,10 +37,12 @@ type UsersDBConfig struct {
 }
 
 type PostgresConfig struct {
-	Name         string        `env:"NAME,default=users" json:",omitempty"`
+	//для создания контейнера с бд:
+	//docker run --name homDB -e POSTGRES_DB=users -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -d -p 5434:5432 postgres
+	Name         string        `env:"NAME,default=users" json:",omitempty"`// имя базы данных
 	User         string        `env:"USER,default=postgres" json:",omitempty"`
 	Host         string        `env:"HOST,default=localhost" json:",omitempty"`
-	Port         int           `env:"PORT,default=5432" json:",omitempty"`
+	Port         int           `env:"PORT,default=5434" json:",omitempty"`
 	SSLMode      string        `env:"SSLMODE,default=disable" json:",omitempty"`
 	ConnTimeout  int           `env:"CONN_TIMEOUT,default=5" json:",omitempty"`
 	Password     string        `env:"PASSWORD,default=postgres" json:"-"`
