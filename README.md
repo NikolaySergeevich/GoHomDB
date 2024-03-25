@@ -31,3 +31,7 @@ migrate -source file:///path/to/migrations/migrations -database "postgres://loca
 
 
 ## В отой части будет описание решения
+
+Команды docker:
+
+- docker exec -it manager-pg psql -U postgres -d users

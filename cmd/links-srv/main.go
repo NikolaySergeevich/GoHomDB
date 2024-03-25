@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
+	"net"
 	"os/signal"
+	"sync"
 	"syscall"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
-	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/database/links"
-	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/env"
+	"gohomdb/internal/env"
 )
 
 func main() {
@@ -26,55 +26,36 @@ func runMain(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("setup.Setup: %w", err)
 	}
-	_ = e
-	create, err := e.LinksRepository.Create(
-		ctx, links.CreateReq{
-			ID:     primitive.NewObjectID(),
-			URL:    "https://ya.ru",
-			Title:  "ya main page",
-			Tags:   []string{"search", "yandex"},
-			Images: []string{},
-			UserID: "9cde716c-dff7-4ad2-b004-c2f7ea65179d", // created user id
-		},
-	)
-	if err != nil {
-		return err
-	}
 
-	create1, err := e.LinksRepository.Create(
-		ctx, links.CreateReq{
-			ID:     primitive.NewObjectID(),
-			URL:    "https://yataxi.ru",
-			Title:  "ya yayayay",
-			Tags:   []string{"taxi", "yandex"},
-			Images: []string{},
-			UserID: "9cde716c-dff7-4ad2-b004-c2f7ea65179d", // created user id
-		},
-	)
-	if err != nil {
-		return err
-	}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 
-	found, err := e.LinksRepository.FindByUserAndURL(ctx, "https://ya.ru", "9cde716c-dff7-4ad2-b004-c2f7ea65179d")
-	if err != nil {
-		return err
-		// log.Println(err.Error())
-	}
+	grpcServer := e.LinksGRPCServer
 
-	foundBy, err := e.LinksRepository.FindByCriteria(
-		ctx, links.Criteria{
-			// Tags: []string{"search", "yandex"},
-			Tags: []string{"yandex"},
-			Limit: int64(1),
-			UserID: &create.UserID,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	fmt.Println(create.LinkString(), create1.LinkString(), found.LinkString())
-	for _, v := range foundBy {
-		fmt.Println(v.LinkString())
-	}
+	go func() {
+		<-ctx.Done()
+		// если посылаем сигнал завершения то завершаем работу нашего сервера
+		grpcServer.Stop()
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		slog.Info(fmt.Sprintf("links grpc was started %s", e.Config.LinksDB.GRPCServer.Addr))
+
+		lis, err := net.Listen("tcp", e.Config.LinksDB.GRPCServer.Addr)
+		if err != nil {
+			slog.Error("net Listen", slog.Any("err", err))
+			return
+		}
+
+		if err := grpcServer.Serve(lis); err != nil {
+			slog.Error("net Listen", slog.Any("err", err))
+			return
+		}
+	}()
+
+	wg.Wait()
+
 	return nil
 }
