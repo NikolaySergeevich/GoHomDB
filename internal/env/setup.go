@@ -3,12 +3,14 @@ package env
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/sethvargo/go-envconfig"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/database/links"
 	"gitlab.com/robotomize/gb-golang/homework/03-01-umanager/internal/database/users"
@@ -27,7 +29,9 @@ func Setup(ctx context.Context) (*Env, error) {
 	if err := envconfig.Process(ctx, &cfg); err != nil { //nolint:typecheck
 		return nil, fmt.Errorf("env processing: %w", err)
 	}
-
+	/*
+	Этот блок кода создаёт подключение к mongo
+	*/
 	linksDB, err := mongo.Connect(
 		ctx, &options.ClientOptions{
 			ConnectTimeout: &cfg.LinksDB.ConnectTimeout,
@@ -36,14 +40,25 @@ func Setup(ctx context.Context) (*Env, error) {
 			MinPoolSize:    &cfg.LinksDB.MinPoolSize,
 		},
 	)
+	if err := linksDB.Ping(ctx, readpref.Primary()); err != nil {
+		log.Fatal(err)
+	}
+
+	// mongoDb := linksDB.Database("Lin")
+
 	if err != nil {
 		return nil, fmt.Errorf("mongo.Connect: %w", err)
 	}
-
+	log.Println(cfg.LinksDB.ConnectionString())
+	/*
+	Этот код ниже создаёт подключение к PostgreSQL
+	*/
 	usersClient, err := pgx.Connect(ctx, cfg.UsersDB.ConnectionURL())
 	if err != nil {
+		fmt.Println("Тут ошибка")
 		return nil, err
 	}
+	log.Println("connect - " + cfg.UsersDB.ConnectionURL())
 
 	usersRepository := users.New(usersClient, 5*time.Second)                        // вынести в конфиг duration
 	linksRepository := links.New(linksDB.Database(cfg.LinksDB.Name), 5*time.Second) // вынести в конфиг duratino
