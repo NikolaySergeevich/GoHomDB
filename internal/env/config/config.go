@@ -39,7 +39,7 @@ type PostgresConfig struct {
 	Name         string        `env:"NAME,default=users" json:",omitempty"`
 	User         string        `env:"USER,default=postgres" json:",omitempty"`
 	Host         string        `env:"HOST,default=localhost" json:",omitempty"`
-	Port         int           `env:"PORT,default=5432" json:",omitempty"`
+	Port         int           `env:"PORT,default=5434" json:",omitempty"`
 	SSLMode      string        `env:"SSLMODE,default=disable" json:",omitempty"`
 	ConnTimeout  int           `env:"CONN_TIMEOUT,default=5" json:",omitempty"`
 	Password     string        `env:"PASSWORD,default=postgres" json:"-"`
