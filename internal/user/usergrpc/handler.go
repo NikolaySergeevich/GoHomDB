@@ -52,7 +52,7 @@ func (h Handler) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.User, 
 	if err != nil{
 		return nil, fmt.Errorf("uuid Pars: %w", err)
 	}
-	us, err := h.usersRepository.FindByID(ctx, idUU)
+	us, err := h.usersRepository.FindByID(ctx, idUU)// !
 	if err != nil{
 		return nil, err
 	}

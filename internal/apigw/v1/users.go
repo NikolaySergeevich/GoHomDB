@@ -25,7 +25,10 @@ func (h *usersHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	var resStr string
 	for _, v := range usList.Users {
-		resStr = resStr + v.String() + "\n"
+		timeCreate := "Дата создания: " + v.CreatedAt
+		timeUpdate := "Дата создания: " + v.UpdatedAt
+		resStr = resStr + "ID: " + v.Id + "\n" + "Пользователь: " + v.Username + "\nПароль: " + v.Password + "\n" + timeCreate + "\n" + timeUpdate + "\n"
+	
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(resStr))
@@ -65,9 +68,15 @@ func (h *usersHandler) GetUsersId(w http.ResponseWriter, r *http.Request, id str
 		slog.Error("gRPC getuser client", slog.String("err", err.Error()))
 		w. WriteHeader(http.StatusInternalServerError)
 	}
-	
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(us.String()))
+	var resStr string
+	if us != nil{
+		timeCreate := "Дата создания: " + us.CreatedAt
+		timeUpdate := "Дата создания: " + us.UpdatedAt
+		resStr = resStr + "ID: " + us.Id + "\n" + "Пользователь: " + us.Username + "\nПароль: " + us.Password + "\n" + timeCreate + "\n" + timeUpdate + "\n"
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(resStr))
+	}
+	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func (h *usersHandler) PutUsersId(w http.ResponseWriter, r *http.Request, id string) {
