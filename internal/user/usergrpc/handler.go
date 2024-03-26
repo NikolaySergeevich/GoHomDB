@@ -45,9 +45,25 @@ func (h Handler) CreateUser(ctx context.Context, in *pb.CreateUserRequest) (*pb.
 func (h Handler) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, h.timeout)
 	defer cancel()
-
+	if in == nil {
+		return nil, status.Error(codes.InvalidArgument, "id is empty")
+	}
+	idUU, err := uuid.Parse(in.Id)
+	if err != nil{
+		return nil, fmt.Errorf("uuid Pars: %w", err)
+	}
+	us, err := h.usersRepository.FindByID(ctx, idUU)
+	if err != nil{
+		return nil, err
+	}
+	user := pb.User{
+		Id: us.ID.String(), 
+		Username: us.Username, 
+		Password: us.Password, 
+		CreatedAt: us.CreatedAt.String(), 
+		UpdatedAt: us.UpdatedAt.String()}
 	// TODO implement me
-	panic("implement me")
+	return &user, nil
 }
 
 func (h Handler) UpdateUser(ctx context.Context, in *pb.UpdateUserRequest) (*pb.Empty, error) {

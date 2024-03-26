@@ -49,8 +49,15 @@ func (h *usersHandler) DeleteUsersId(w http.ResponseWriter, r *http.Request, id 
 }
 
 func (h *usersHandler) GetUsersId(w http.ResponseWriter, r *http.Request, id string) {
-	// TODO implement me
+	req := pb.GetUserRequest{Id: id}
+	us, err := h.client.GetUser(context.TODO(), &req)
+	if err != nil{
+		slog.Error("gRPC getuser client", slog.String("err", err.Error()))
+		w. WriteHeader(http.StatusInternalServerError)
+	}
+	
 	w.WriteHeader(http.StatusNotImplemented)
+	w.Write([]byte(us.String()))
 }
 
 func (h *usersHandler) PutUsersId(w http.ResponseWriter, r *http.Request, id string) {

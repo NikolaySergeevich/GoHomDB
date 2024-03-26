@@ -32,6 +32,16 @@ migrate -source file:///path/to/migrations/migrations -database "postgres://loca
 
 ## В отой части будет описание решения
 
-Команды docker:
+**Команды docker:**
 
 - docker exec -it manager-pg psql -U postgres -d users
+
+**Команды для генерауии запросов**
+
+curl -vvv -XPOST 'http://localhost:8088/api/v1/users' -d '{"id": "1", "username": "object1", "password": "polop"}'
+
+curl -vv -XGET 'http://localhost:8088/api/v1/users'
+
+curl -vvv -XGET 'http://localhost:8088/api/v1/users/dbc11a9d-f401-42de-a4b8-0d5733c62b53'
+
+curl -vv -XDELETE 'http://localhost:8088/api/v1/users/8285d20a-e6db-42c3-992c-d6e14c69dda1'

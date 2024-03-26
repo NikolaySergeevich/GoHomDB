@@ -7,10 +7,11 @@
 package pb
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -42,7 +43,12 @@ func (x *User) Reset() {
 }
 
 func (x *User) String() string {
-	return protoimpl.X.MessageStringOf(x)
+	var res string
+	timeCreate := "Дата создания: " + x.CreatedAt
+	timeUpdate := "Дата создания: " + x.UpdatedAt
+	res = res + "ID: " + x.Id + "\n" + "Пользователь: " + x.Username + ":" + x.Password + "\n" + timeCreate + "\n" + timeUpdate + "\n"
+	return res
+	// return protoimpl.X.MessageStringOf(x)
 }
 
 func (*User) ProtoMessage() {}
