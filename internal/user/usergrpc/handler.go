@@ -62,16 +62,31 @@ func (h Handler) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.User, 
 		Password: us.Password, 
 		CreatedAt: us.CreatedAt.String(), 
 		UpdatedAt: us.UpdatedAt.String()}
-	// TODO implement me
 	return &user, nil
 }
 
 func (h Handler) UpdateUser(ctx context.Context, in *pb.UpdateUserRequest) (*pb.Empty, error) {
 	ctx, cancel := context.WithTimeout(ctx, h.timeout)
 	defer cancel()
+	if in == nil {
+		return nil, status.Error(codes.InvalidArgument, "id is empty")
+	}
+	idUUID, err := uuid.Parse(in.Id)
+	if err != nil{
+		return nil, fmt.Errorf("not correctly string UUID: %w", err)
+	}
 
+	req := database.CreateUserReq{
+		ID: idUUID,
+		Username: in.Username,
+		Password: in.Password,
+	}
+	_, errr :=  h.usersRepository.Create(ctx, req)
+	if errr != nil{
+		return nil, err
+	}
 	// TODO implement me
-	return nil, status.Error(codes.Unimplemented, codes.Unimplemented.String())
+	return &pb.Empty{}, nil
 }
 
 func (h Handler) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest,) (*pb.Empty, error) {
@@ -87,17 +102,25 @@ func (h Handler) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest,) (*pb
 	if err := h.usersRepository.DeleteByUserID(ctx, idUU); err != nil{
 		return nil, err
 	}
-	// TODO implement me
 	return &pb.Empty{}, nil
 }
 
-func (h Handler) ListUsers(
-	ctx context.Context,
-	in *pb.Empty,
-) (*pb.ListUsersResponse, error) {
+func (h Handler) ListUsers(ctx context.Context, in *pb.Empty,) (*pb.ListUsersResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, h.timeout)
 	defer cancel()
-
-	// TODO implement me
-	return nil, status.Error(codes.Unimplemented, codes.Unimplemented.String())
+	listUsers, err := h.usersRepository.FindAll(ctx)
+	if err != nil{
+		return nil, err
+	}
+	UsList := make([]*pb.User, 0)
+	for _, v := range listUsers {
+		UsList = append(UsList, &pb.User{
+			Id: v.ID.String(), 
+			Username: v.Username, 
+			Password: v.Password,
+			CreatedAt: v.CreatedAt.String(),
+			UpdatedAt: v.UpdatedAt.String(),
+		})
+	}
+	return &pb.ListUsersResponse{Users: UsList}, nil
 }

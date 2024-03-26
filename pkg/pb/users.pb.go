@@ -46,7 +46,7 @@ func (x *User) String() string {
 	var res string
 	timeCreate := "Дата создания: " + x.CreatedAt
 	timeUpdate := "Дата создания: " + x.UpdatedAt
-	res = res + "ID: " + x.Id + "\n" + "Пользователь: " + x.Username + ":" + x.Password + "\n" + timeCreate + "\n" + timeUpdate + "\n"
+	res = res + "ID: " + x.Id + "\n" + "Пользователь: " + x.Username + "\nПароль" + x.Password + "\n" + timeCreate + "\n" + timeUpdate + "\n"
 	return res
 	// return protoimpl.X.MessageStringOf(x)
 }

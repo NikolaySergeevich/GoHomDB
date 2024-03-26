@@ -17,8 +17,18 @@ type usersHandler struct {
 }
 
 func (h *usersHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	// TODO implement me
-	w.WriteHeader(http.StatusNotImplemented)
+	usList, err := h.client.ListUsers(context.TODO(), &pb.Empty{})
+	if err != nil {
+		slog.Error("gRPC GetUsers client", slog.String("err", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var resStr string
+	for _, v := range usList.Users {
+		resStr = resStr + v.String() + "\n"
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(resStr))
 }
 /*
 Создать нового пользователя
@@ -56,11 +66,20 @@ func (h *usersHandler) GetUsersId(w http.ResponseWriter, r *http.Request, id str
 		w. WriteHeader(http.StatusInternalServerError)
 	}
 	
-	w.WriteHeader(http.StatusNotImplemented)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(us.String()))
 }
 
 func (h *usersHandler) PutUsersId(w http.ResponseWriter, r *http.Request, id string) {
-	// TODO implement me
-	w.WriteHeader(http.StatusNotImplemented)
+	req := pb.UpdateUserRequest{Id: id}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		slog.Error("json.NewDecoder Decode", slog.String("err", err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if _, err := h.client.UpdateUser(context.TODO(), &req); err != nil{
+		slog.Error("gRPC Updateuser client", slog.String("err", err.Error()))
+		w. WriteHeader(http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
 }
