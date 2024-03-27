@@ -17,13 +17,22 @@ type linksHandler struct {
 }
 
 func (h *linksHandler) GetLinks(w http.ResponseWriter, r *http.Request) {
-	
-	// TODO implement me
-	w.WriteHeader(http.StatusNotImplemented)
+	listPB, err := h.client.ListLinks(context.TODO(), &pb.Empty{})
+	if err != nil {
+		slog.Error("gRPS Get all link", slog.String("err", err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	var res string
+	for _, link := range listPB.Links {
+		res = res + "ID: " + link.Id + "\n" + "Title: " + link.Title + "\nUrl: " + link.Url + 
+				"\nUserId: " + link.UserId + "\n" + "Дата создания: " + link.CreatedAt + "\n" + "Дата создания: " + link.UpdatedAt + "\n"
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(res))
 }
 
 func (h *linksHandler) PostLinks(w http.ResponseWriter, r *http.Request) {
-	// TODO implement me
 	req := pb.CreateLinkRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		slog.Error("json.NewDecoder Decode", slog.String("err", err.Error()))
@@ -71,12 +80,35 @@ func (h *linksHandler) GetLinksId(w http.ResponseWriter, r *http.Request, id str
 }
 
 func (h *linksHandler) PutLinksId(w http.ResponseWriter, r *http.Request, id string) {
-	// TODO implement me
-	w.WriteHeader(http.StatusNotImplemented)
+	req := pb.UpdateLinkRequest{Id: id}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		slog.Error("json.NewDecoder Decode", slog.String("err", err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	req.Id = id
+	if _, err := h.client.UpdateLink(context.TODO(), &req); err != nil{
+		slog.Error("gRPS UpdateLink link", slog.String("err", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *linksHandler) GetLinksUserUserID(w http.ResponseWriter, r *http.Request, userID string) {
-	// TODO implement me
-	w.WriteHeader(http.StatusNotImplemented)
+	req := pb.GetLinksByUserId{UserId: userID}
+	links, err := h.client.GetLinkByUserID(context.TODO(), &req)
+	if err != nil{
+		slog.Error("gRPS GetLinksUserUserID link", slog.String("err", err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var res string
+	for _, link := range links.Links {
+		res = res + "ID: " + link.Id + "\n" + "Title: " + link.Title + "\nUrl: " + link.Url + 
+				"\nUserId: " + link.UserId + "\n" + "Дата создания: " + link.CreatedAt + "\n" + "Дата создания: " + link.UpdatedAt + "\n"
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(res))
 }
 

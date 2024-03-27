@@ -50,17 +50,27 @@ func (r *Repository) Create(ctx context.Context, req database.CreateLinkReq) (da
 func (r *Repository) Update(ctx context.Context, req database.UpdateLinkReq) (database.Link, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
+	oldLink := database.Link{}
+	l := database.Link{}
+	result := r.db.Collection(collection).FindOne(ctx, bson.M{"id": req.ID})
+	if err := result.Err(); err != nil{
+		return l, fmt.Errorf("mongo FindOne: %w", err)
+	}
+	
+	if err := result.Decode(&oldLink); err != nil{
+		return l, fmt.Errorf("mongo Decode: %w", err)
+	}
 
 	now := time.Now()
 
-	l := database.Link{
+	l = database.Link{
 		ID:        req.ID,
 		Title:     req.Title,
 		URL:       req.URL,
 		Images:    req.Images,
 		Tags:      req.Tags,
 		UserID:    req.UserID,
-		CreatedAt: now, // обновляем и created_at также. Подумайте как поменять методы так,
+		CreatedAt: oldLink.CreatedAt, // обновляем и created_at также. Подумайте как поменять методы так,
 		// чтобы поле created_at не обновлялось, это можно сделать разными способоами
 		UpdatedAt: now,
 	}
@@ -97,7 +107,6 @@ func (r *Repository) FindByID(ctx context.Context, id primitive.ObjectID) (datab
 	if err := result.Decode(&l); err != nil {
 		return l, fmt.Errorf("mongo Decode: %w", err)
 	}
-
 	return l, nil
 }
 
@@ -110,7 +119,7 @@ func (r *Repository) FindByUserID(ctx context.Context, userID string) ([]databas
 	if err != nil {
 		return nil, fmt.Errorf("mongo Find: %w", err)
 	}
-
+	
 	for cursor.Next(ctx) {
 		var l database.Link
 		if err := cursor.Decode(&l); err != nil {

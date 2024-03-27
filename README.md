@@ -52,12 +52,12 @@ curl -vv -XDELETE 'http://localhost:8088/api/v1/users/8285d20a-e6db-42c3-992c-d6
 
 curl -vvv  -X POST 'http://localhost:8088/api/v1/links' -d '{"id":"123","title":"pop","url":"myURL", "images":[], "tags":[], "user_id":"235d4fd5-be6f-4942-965e-2715cbab1f8d"}'
 
-// curl -vvv  -X PUT -H 'Content-Type: application/json' -d '{"source_id": 1, "target_id": 2}' http://localhost:9000/make_friends
+curl -vvv  -X GET  'http://localhost:8088/api/v1/links'
 
 curl -vvv  -X GET  'http://localhost:8088/api/v1/links/660335a86a88d48e75619926'
 
-// curl -vvv  -X PUT -H 'Content-Type: application/json' -d '{"new age":33}' http://localhost:9000/1
+curl -vvv  -X GET  'http://localhost:8088/api/v1/links/user/235d4fd5-be6f-4942-965e-2715cbab1f8d'
 
-// curl -vvv  -X GET  http://localhost:9000/get_all
+curl -vvv  -X PUT 'http://localhost:8088/api/v1/links/660335a86a88d48e75619926' -d '{"id":"123","title":"pop","url":"myURL", "images":[], "tags":[], "user_id":"235d4fd5-be6f-4942-965e-2715cbab1f8d"}'
 
 curl -vvv  -X DELETE 'http://localhost:8088/api/v1/links/660335a86a88d48e75619926' 
