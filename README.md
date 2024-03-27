@@ -28,3 +28,36 @@ migrate -source file:///path/to/migrations/migrations -database "postgres://loca
 В последующих заданиях мы будем развивать эту структуру. В отличие от предыдущих заданий, я буду предоставлять базовое решение, которое не охватывает все возможные сценарии и граничные случаи.
 
 Это позволит нам продвигаться вперед, не застревая на деталях. Однако для достижения качественных результатов вам потребуется более детально проработать решения самостоятельно. Задания со звездочкой больше не будут предоставляться, но вы можете усложнить проект самостоятельно, добавив новые функции или улучшив архитектуру. Успехов в работе!
+
+
+## В отой части будет описание решения
+
+**Команды docker:**
+
+- docker exec -it manager-pg psql -U postgres -d users
+
+- docker exec -it manager-mongo mongosh "mongodb://localhost:27017"
+
+**Команды для генерауии запросов USER**
+
+curl -vvv -XPOST 'http://localhost:8088/api/v1/users' -d '{"id": "1", "username": "object1", "password": "polop"}'
+
+curl -vv -XGET 'http://localhost:8088/api/v1/users'
+
+curl -vvv -XGET 'http://localhost:8088/api/v1/users/dbc11a9d-f401-42de-a4b8-0d5733c62b53'
+
+curl -vv -XDELETE 'http://localhost:8088/api/v1/users/8285d20a-e6db-42c3-992c-d6e14c69dda1'
+
+**Команды для генерауии запросов link**
+
+curl -vvv  -X POST 'http://localhost:8088/api/v1/links' -d '{"id":"123","title":"pop","url":"myURL", "images":[], "tags":[], "user_id":"235d4fd5-be6f-4942-965e-2715cbab1f8d"}'
+
+curl -vvv  -X GET  'http://localhost:8088/api/v1/links'
+
+curl -vvv  -X GET  'http://localhost:8088/api/v1/links/660335a86a88d48e75619926'
+
+curl -vvv  -X GET  'http://localhost:8088/api/v1/links/user/235d4fd5-be6f-4942-965e-2715cbab1f8d'
+
+curl -vvv  -X PUT 'http://localhost:8088/api/v1/links/660335a86a88d48e75619926' -d '{"id":"123","title":"pop","url":"myURL", "images":[], "tags":[], "user_id":"235d4fd5-be6f-4942-965e-2715cbab1f8d"}'
+
+curl -vvv  -X DELETE 'http://localhost:8088/api/v1/links/660335a86a88d48e75619926' 
